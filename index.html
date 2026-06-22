@@ -12,7 +12,27 @@ overflow:hidden;
 background:#7ec850;
 touch-action:none;
 }
+#joystick{
+position:fixed;
+left:20px;
+bottom:20px;
+width:120px;
+height:120px;
+border-radius:50%;
+background:rgba(255,255,255,0.25);
+border:3px solid rgba(255,255,255,0.5);
+z-index:999;
+}
 
+#stick{
+position:absolute;
+left:40px;
+top:40px;
+width:40px;
+height:40px;
+border-radius:50%;
+background:white;
+}
 #ui{
 position:fixed;
 top:10px;
@@ -63,7 +83,9 @@ color:white;
 </style>
 </head>
 <body>
-
+<div id="joystick">
+  <div id="stick"></div>
+</div>
 <div id="ui">
 HP: <span id="hp">100</span>
 <br>
@@ -91,14 +113,16 @@ let ey=150;
 
 let hp=100;
 let score=0;
-
+const joystick=document.getElementById("joystick");
 player.style.left=px+"px";
 player.style.top=py+"px";
 
 enemy.style.left=ex+"px";
 enemy.style.top=ey+"px";
 
-document.addEventListener("touchmove",(e)=>{
+setInterval(()=>{
+...
+},16);
 
 px=e.touches[0].clientX-25;
 py=e.touches[0].clientY-25;
