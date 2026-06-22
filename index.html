@@ -1,9 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-<title>テスト</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ブロスタ風ミニゲーム</title>
+
+<style>
+body{
+margin:0;
+overflow:hidden;
+background:#7ec850;
+touch-action:none;
+}
+
+#ui{
+position:fixed;
+top:10px;
+left:10px;
+font-size:24px;
+font-weight:bold;
+color:white;
+text-shadow:2px 2px 4px black;
+}
+
+.player{
+position:absolute;
+width:50px;
+height:50px;
+background:#2196f3;
+border-radius:50%;
+}
+
+.enemy{
+position:absolute;
+width:50px;
+height:50px;
+background:#f44336;
+border-radius:50%;
+}
+</style>
 </head>
+
 <body>
-<h1>公開成功！</h1>
+
+<div id="ui">
+HP: <span id="hp">100</span>
+</div>
+
+<div id="player" class="player"></div>
+<div id="enemy" class="enemy"></div>
+
+<script>
+
+const player=document.getElementById("player");
+const enemy=document.getElementById("enemy");
+const hpText=document.getElementById("hp");
+
+let px=150;
+let py=300;
+
+let ex=250;
+let ey=150;
+
+let hp=100;
+
+player.style.left=px+"px";
+player.style.top=py+"px";
+
+enemy.style.left=ex+"px";
+enemy.style.top=ey+"px";
+
+document.addEventListener("touchmove",(e)=>{
+
+px=e.touches[0].clientX-25;
+py=e.touches[0].clientY-25;
+
+player.style.left=px+"px";
+player.style.top=py+"px";
+
+});
+
+setInterval(()=>{
+
+let dx=px-ex;
+let dy=py-ey;
+
+let dist=Math.sqrt(dx*dx+dy*dy);
+
+if(dist>1){
+
+ex+=dx/dist*2;
+ey+=dy/dist*2;
+
+}
+
+enemy.style.left=ex+"px";
+enemy.style.top=ey+"px";
+
+if(dist<50){
+
+hp--;
+
+hpText.textContent=hp;
+
+if(hp<=0){
+
+alert("ゲームオーバー");
+location.reload();
+
+}
+
+}
+
+},30);
+
+</script>
+
 </body>
 </html>
