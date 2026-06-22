@@ -120,10 +120,69 @@ player.style.top=py+"px";
 enemy.style.left=ex+"px";
 enemy.style.top=ey+"px";
 
-setInterval(()=>{
-...
-},16);
+let moveX = 0;
+let moveY = 0;
 
+setInterval(()=>{
+
+px += moveX * 5;
+py += moveY * 5;
+
+player.style.left = px + "px";
+player.style.top = py + "px";
+
+},16);
+const stick=document.getElementById("stick");
+
+let dragging=false;
+
+joystick.addEventListener("touchstart",(e)=>{
+dragging=true;
+e.preventDefault();
+});
+
+joystick.addEventListener("touchmove",(e)=>{
+
+if(!dragging)return;
+
+const rect=joystick.getBoundingClientRect();
+
+const x=e.touches[0].clientX-rect.left-60;
+const y=e.touches[0].clientY-rect.top-60;
+
+const dist=Math.sqrt(x*x+y*y);
+
+const max=40;
+
+let sx=x;
+let sy=y;
+
+if(dist>max){
+sx=x/dist*max;
+sy=y/dist*max;
+}
+
+stick.style.left=(40+sx)+"px";
+stick.style.top=(40+sy)+"px";
+
+moveX=sx/max;
+moveY=sy/max;
+
+e.preventDefault();
+
+});
+
+joystick.addEventListener("touchend",()=>{
+
+dragging=false;
+
+moveX=0;
+moveY=0;
+
+stick.style.left="40px";
+stick.style.top="40px";
+
+});
 px=e.touches[0].clientX-25;
 py=e.touches[0].clientY-25;
 
