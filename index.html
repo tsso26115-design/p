@@ -12,27 +12,7 @@ overflow:hidden;
 background:#7ec850;
 touch-action:none;
 }
-#joystick{
-position:fixed;
-left:20px;
-bottom:20px;
-width:120px;
-height:120px;
-border-radius:50%;
-background:rgba(255,255,255,0.25);
-border:3px solid rgba(255,255,255,0.5);
-z-index:999;
-}
 
-#stick{
-position:absolute;
-left:40px;
-top:40px;
-width:40px;
-height:40px;
-border-radius:50%;
-background:white;
-}
 #ui{
 position:fixed;
 top:10px;
@@ -68,105 +48,141 @@ background:yellow;
 border-radius:50%;
 }
 
+#joystick{
+position:fixed;
+left:20px;
+bottom:20px;
+width:120px;
+height:120px;
+border-radius:50%;
+background:rgba(255,255,255,0.2);
+border:4px solid rgba(255,255,255,0.5);
+z-index:999;
+}
+
+#stick{
+position:absolute;
+left:40px;
+top:40px;
+width:40px;
+height:40px;
+border-radius:50%;
+background:white;
+}
+
 #shoot{
 position:fixed;
 right:30px;
 bottom:30px;
 width:100px;
 height:100px;
-border-radius:50%;
 border:none;
+border-radius:50%;
 font-size:40px;
 background:#ff9800;
 color:white;
+z-index:999;
 }
 </style>
 </head>
+
 <body>
-<div id="joystick">
-  <div id="stick"></div>
-</div>
+
 <div id="ui">
-HP: <span id="hp">100</span>
-<br>
+HP: <span id="hp">100</span><br>
 Score: <span id="score">0</span>
 </div>
 
 <div id="player"></div>
 <div id="enemy" class="enemy"></div>
 
+<div id="joystick">
+<div id="stick"></div>
+</div>
+
 <button id="shoot">🔥</button>
 
 <script>
 
-const player=document.getElementById("player");
-const enemy=document.getElementById("enemy");
-const hpText=document.getElementById("hp");
-const scoreText=document.getElementById("score");
-const shootBtn=document.getElementById("shoot");
+const player = document.getElementById("player");
+const enemy = document.getElementById("enemy");
+const hpText = document.getElementById("hp");
+const scoreText = document.getElementById("score");
+const shootBtn = document.getElementById("shoot");
 
-let px=150;
-let py=300;
+const joystick = document.getElementById("joystick");
+const stick = document.getElementById("stick");
 
-let ex=300;
-let ey=150;
+let px = 150;
+let py = 300;
 
-let hp=100;
-let score=0;
-const joystick=document.getElementById("joystick");
-player.style.left=px+"px";
-player.style.top=py+"px";
+let ex = 500;
+let ey = 200;
 
-enemy.style.left=ex+"px";
-enemy.style.top=ey+"px";
+let hp = 100;
+let score = 0;
 
 let moveX = 0;
 let moveY = 0;
 
-setInterval(()=>{
+player.style.left = px + "px";
+player.style.top = py + "px";
+
+enemy.style.left = ex + "px";
+enemy.style.top = ey + "px";
+
+setInterval(() => {
 
 px += moveX * 5;
 py += moveY * 5;
+
+if(px < 0) px = 0;
+if(py < 0) py = 0;
+
+if(px > window.innerWidth - 50)
+px = window.innerWidth - 50;
+
+if(py > window.innerHeight - 50)
+py = window.innerHeight - 50;
 
 player.style.left = px + "px";
 player.style.top = py + "px";
 
 },16);
-const stick=document.getElementById("stick");
 
-let dragging=false;
+let dragging = false;
 
 joystick.addEventListener("touchstart",(e)=>{
-dragging=true;
+dragging = true;
 e.preventDefault();
 });
 
 joystick.addEventListener("touchmove",(e)=>{
 
-if(!dragging)return;
+if(!dragging) return;
 
-const rect=joystick.getBoundingClientRect();
+const rect = joystick.getBoundingClientRect();
 
-const x=e.touches[0].clientX-rect.left-60;
-const y=e.touches[0].clientY-rect.top-60;
+const x = e.touches[0].clientX - rect.left - 60;
+const y = e.touches[0].clientY - rect.top - 60;
 
-const dist=Math.sqrt(x*x+y*y);
+const dist = Math.sqrt(x*x+y*y);
 
-const max=40;
+const max = 40;
 
-let sx=x;
-let sy=y;
+let sx = x;
+let sy = y;
 
-if(dist>max){
-sx=x/dist*max;
-sy=y/dist*max;
+if(dist > max){
+sx = x/dist*max;
+sy = y/dist*max;
 }
 
-stick.style.left=(40+sx)+"px";
-stick.style.top=(40+sy)+"px";
+stick.style.left = (40+sx)+"px";
+stick.style.top = (40+sy)+"px";
 
-moveX=sx/max;
-moveY=sy/max;
+moveX = sx/max;
+moveY = sy/max;
 
 e.preventDefault();
 
@@ -174,72 +190,65 @@ e.preventDefault();
 
 joystick.addEventListener("touchend",()=>{
 
-dragging=false;
+dragging = false;
 
-moveX=0;
-moveY=0;
+moveX = 0;
+moveY = 0;
 
-stick.style.left="40px";
-stick.style.top="40px";
+stick.style.left = "40px";
+stick.style.top = "40px";
 
 });
-px=e.touches[0].clientX-25;
-py=e.touches[0].clientY-25;
-
-player.style.left=px+"px";
-player.style.top=py+"px";
-
-},{passive:false});
 
 function spawnEnemy(){
 
-ex=Math.random()*(window.innerWidth-100)+50;
-ey=Math.random()*300+50;
+ex = Math.random()*(window.innerWidth-100)+50;
+ey = Math.random()*(window.innerHeight-300)+50;
 
-enemy.style.left=ex+"px";
-enemy.style.top=ey+"px";
+enemy.style.left = ex+"px";
+enemy.style.top = ey+"px";
 
 }
 
 shootBtn.addEventListener("click",()=>{
 
-const bullet=document.createElement("div");
+const bullet = document.createElement("div");
 
-bullet.className="bullet";
+bullet.className = "bullet";
 
-let bx=px+20;
-let by=py+20;
+let bx = px + 18;
+let by = py + 18;
 
-bullet.style.left=bx+"px";
-bullet.style.top=by+"px";
+bullet.style.left = bx+"px";
+bullet.style.top = by+"px";
 
 document.body.appendChild(bullet);
 
-const dx=ex-bx;
-const dy=ey-by;
+const dx = ex - bx;
+const dy = ey - by;
 
-const dist=Math.sqrt(dx*dx+dy*dy);
+const dist = Math.sqrt(dx*dx + dy*dy);
 
-const vx=dx/dist*8;
-const vy=dy/dist*8;
+const vx = dx/dist*10;
+const vy = dy/dist*10;
 
-const move=setInterval(()=>{
+const move = setInterval(()=>{
 
-bx+=vx;
-by+=vy;
+bx += vx;
+by += vy;
 
-bullet.style.left=bx+"px";
-bullet.style.top=by+"px";
+bullet.style.left = bx+"px";
+bullet.style.top = by+"px";
 
-const d=Math.sqrt(
+const hit = Math.sqrt(
 (bx-ex)*(bx-ex)+
 (by-ey)*(by-ey)
 );
 
-if(d<35){
+if(hit < 35){
 
 score++;
-scoreText.textContent=score;
+scoreText.textContent = score;
 
 spawnEnemy();
 
@@ -249,47 +258,45 @@ clearInterval(move);
 }
 
 if(
-bx<0||
-by<0||
-bx>window.innerWidth||
-by>window.innerHeight
+bx < 0 ||
+by < 0 ||
+bx > window.innerWidth ||
+by > window.innerHeight
 ){
-
 bullet.remove();
 clearInterval(move);
-
 }
 
-},20);
+},16);
 
 });
 
 setInterval(()=>{
 
-const dx=px-ex;
-const dy=py-ey;
+const dx = px - ex;
+const dy = py - ey;
 
-const dist=Math.sqrt(dx*dx+dy*dy);
+const dist = Math.sqrt(dx*dx + dy*dy);
 
-if(dist>1){
+if(dist > 1){
 
-ex+=dx/dist*1.5;
-ey+=dy/dist*1.5;
+ex += dx/dist*1.5;
+ey += dy/dist*1.5;
 
-enemy.style.left=ex+"px";
-enemy.style.top=ey+"px";
+enemy.style.left = ex+"px";
+enemy.style.top = ey+"px";
 
 }
 
-if(dist<50){
+if(dist < 50){
 
 hp--;
 
-hpText.textContent=hp;
+hpText.textContent = hp;
 
-if(hp<=0){
+if(hp <= 0){
 
-alert("ゲームオーバー！ スコア:"+score);
+alert("ゲームオーバー！ スコア："+score);
 location.reload();
 
 }
@@ -301,4 +308,4 @@ location.reload();
 </script>
 
 </body>
-</html>
+</html>お
