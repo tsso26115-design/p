@@ -6,36 +6,31 @@
 <title>Brawl Mini 1v1</title>
 
 <style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
 
 body{
-margin:0;
 overflow:hidden;
 background:#7ec850;
 touch-action:none;
 font-family:sans-serif;
 }
 
-#game{
-position:fixed;
-left:0;
-top:0;
-width:100vw;
-height:100vh;
-}
-
-.player,
-.enemy{
+#player,#enemy{
 position:absolute;
 width:60px;
 height:60px;
 border-radius:50%;
 }
 
-.player{
+#player{
 background:#2196f3;
 }
 
-.enemy{
+#enemy{
 background:#f44336;
 }
 
@@ -43,15 +38,15 @@ background:#f44336;
 position:absolute;
 width:70px;
 height:10px;
-background:#333;
+background:#444;
 border-radius:10px;
 overflow:hidden;
 }
 
 .hpFill{
+width:100%;
 height:100%;
 background:#00ff00;
-width:100%;
 }
 
 .bullet{
@@ -60,14 +55,6 @@ width:14px;
 height:14px;
 border-radius:50%;
 background:yellow;
-}
-
-#leftStick{
-position:fixed;
-left:0;
-bottom:0;
-width:50vw;
-height:100vh;
 }
 
 #moveBase{
@@ -89,6 +76,15 @@ left:40px;
 top:40px;
 border-radius:50%;
 background:white;
+}
+
+#leftZone{
+position:fixed;
+left:0;
+bottom:0;
+width:50vw;
+height:100vh;
+z-index:50;
 }
 
 #shootBtn{
@@ -119,29 +115,25 @@ z-index:150;
 position:fixed;
 top:10px;
 left:10px;
-color:white;
 font-size:22px;
 font-weight:bold;
+color:white;
 text-shadow:2px 2px 5px black;
 z-index:300;
 }
-
 </style>
 </head>
 
 <body>
 
 <div id="ui">
-❤️ <span id="playerHP">300</span>
+❤️ HP: <span id="playerHP">300</span>
 </div>
 
 <canvas id="aimCanvas"></canvas>
 
-<div id="game">
-
-<div id="player" class="player"></div>
-
-<div id="enemy" class="enemy"></div>
+<div id="player"></div>
+<div id="enemy"></div>
 
 <div id="playerBar" class="hpBar">
 <div id="playerFill" class="hpFill"></div>
@@ -151,19 +143,14 @@ z-index:300;
 <div id="enemyFill" class="hpFill"></div>
 </div>
 
-</div>
-
-<div id="leftStick"></div>
+<div id="leftZone"></div>
 
 <div id="moveBase">
 <div id="moveKnob"></div>
 </div>
 
-<button id="shootBtn">🔥</button>
-
-<script>
-
-const player=document.getElementById("player");
+<button id="shootBtn">🔥</
+ const player=document.getElementById("player");
 const enemy=document.getElementById("enemy");
 
 const playerBar=document.getElementById("playerBar");
@@ -172,7 +159,7 @@ const enemyBar=document.getElementById("enemyBar");
 const playerFill=document.getElementById("playerFill");
 const enemyFill=document.getElementById("enemyFill");
 
-const leftStick=document.getElementById("leftStick");
+const leftZone=document.getElementById("leftZone");
 const moveBase=document.getElementById("moveBase");
 const moveKnob=document.getElementById("moveKnob");
 
@@ -189,8 +176,8 @@ aimCanvas.height=window.innerHeight;
 let px=150;
 let py=300;
 
-let ex=500;
-let ey=200;
+let ex=550;
+let ey=250;
 
 let playerHP=300;
 let enemyHP=300;
@@ -200,7 +187,11 @@ let moveY=0;
 
 let stickActive=false;
 
-function updateUI(){
+let aiming=false;
+let aimDX=0;
+let aimDY=0;
+
+let autoAim=true;
 
 player.style.left=px+"px";
 player.style.top=py+"px";
@@ -208,11 +199,13 @@ player.style.top=py+"px";
 enemy.style.left=ex+"px";
 enemy.style.top=ey+"px";
 
+function updateBars(){
+
 playerBar.style.left=(px-5)+"px";
-playerBar.style.top=(py-18)+"px";
+playerBar.style.top=(py-15)+"px";
 
 enemyBar.style.left=(ex-5)+"px";
-enemyBar.style.top=(ey-18)+"px";
+enemyBar.style.top=(ey-15)+"px";
 
 playerFill.style.width=
 (playerHP/300*100)+"%";
@@ -225,9 +218,9 @@ Math.max(0,Math.floor(playerHP));
 
 }
 
-updateUI();
+updateBars();
 
-leftStick.addEventListener("touchstart",(e)=>{
+leftZone.addEventListener("touchstart",(e)=>{
 
 stickActive=true;
 
@@ -235,26 +228,25 @@ const x=e.touches[0].clientX;
 const y=e.touches[0].clientY;
 
 moveBase.style.display="block";
-
 moveBase.style.left=(x-60)+"px";
 moveBase.style.top=(y-60)+"px";
 
 });
 
-leftStick.addEventListener("touchmove",(e)=>{
+leftZone.addEventListener("touchmove",(e)=>{
 
 if(!stickActive)return;
 
-const baseRect=
+const rect=
 moveBase.getBoundingClientRect();
 
 let x=
 e.touches[0].clientX-
-(baseRect.left+60);
+(rect.left+60);
 
 let y=
 e.touches[0].clientY-
-(baseRect.top+60);
+(rect.top+60);
 
 const dist=
 Math.sqrt(x*x+y*y);
@@ -279,7 +271,7 @@ e.preventDefault();
 
 },{passive:false});
 
-leftStick.addEventListener("touchend",()=>{
+leftZone.addEventListener("touchend",()=>{
 
 stickActive=false;
 
@@ -293,7 +285,163 @@ moveY=0;
 
 });
 
-setInterval(()=>{
+function shootBullet(dx,dy,enemyShot=false){
+
+const bullet=
+document.createElement("div");
+
+bullet.className="bullet";
+
+let bx=enemyShot?ex+30:px+30;
+let by=enemyShot?ey+30:py+30;
+
+bullet.style.left=bx+"px";
+bullet.style.top=by+"px";
+
+document.body.appendChild(bullet);
+
+const dist=
+Math.sqrt(dx*dx+dy*dy);
+
+const vx=dx/dist*9;
+const vy=dy/dist*9;
+
+const timer=setInterval(()=>{
+
+bx+=vx;
+by+=vy;
+
+bullet.style.left=bx+"px";
+bullet.style.top=by+"px";
+
+if(enemyShot){
+
+const hit=Math.hypot(
+bx-px,
+by-py
+);
+
+if(hit<35){
+
+playerHP-=25;
+
+if(playerHP<=0){
+
+alert("敗北...");
+location.reload();
+
+}
+
+updateBars();
+
+bullet.remove();
+clearInterval(timer);
+
+}
+
+}else{
+
+const hit=Math.hypot(
+bx-ex,
+by-ey
+);
+
+if(hit<35){
+
+enemyHP-=35;
+
+if(enemyHP<=0){
+
+alert("勝利！");
+location.reload();
+
+}
+
+updateBars();
+
+bullet.remove();
+clearInterval(timer);
+
+}
+
+}
+
+if(
+bx<0||
+by<0||
+bx>window.innerWidth||
+by>window.innerHeight
+){
+
+bullet.remove();
+clearInterval(timer);
+
+}
+
+},16);
+
+}
+
+shootBtn.addEventListener("click",()=>{
+
+if(aiming)return;
+
+const dx=ex-px;
+const dy=ey-py;
+
+shootBullet(dx,dy,false);
+
+});
+
+shootBtn.addEventListener("touchstart",(e)=>{
+
+aiming=true;
+
+aimDX=0;
+aimDY=0;
+
+});
+
+shootBtn.addEventListener("touchmove",(e)=>{
+
+const rect=
+shootBtn.getBoundingClientRect();
+
+aimDX=
+e.touches[0].clientX-
+(rect.left+55);
+
+aimDY=
+e.touches[0].clientY-
+(rect.top+55);
+
+});
+
+shootBtn.addEventListener("touchend",()=>{
+
+if(
+Math.abs(aimDX)<15 &&
+Math.abs(aimDY)<15
+){
+
+aiming=false;
+return;
+
+}
+
+shootBullet(
+aimDX,
+aimDY,
+false
+);
+
+aiming=false;
+
+});
+
+let enemyCooldown=0;
+
+function gameLoop(){
 
 px+=moveX*5;
 py+=moveY*5;
@@ -310,141 +458,44 @@ py=window.innerHeight-60;
 const dx=px-ex;
 const dy=py-ey;
 
-const dist=Math.sqrt(dx*dx+dy*dy);
+const dist=Math.hypot(dx,dy);
 
-if(dist>140){
+if(dist>220){
 
-ex+=dx/dist*1.8;
-ey+=dy/dist*1.8;
+ex+=dx/dist*1.6;
+ey+=dy/dist*1.6;
 
 }
 
-updateUI();
+if(dist<170){
 
-},16);
-let aiming=false;
-let aimX=0;
-let aimY=0;
-let aimStartX=0;
-let aimStartY=0;
-let enemyShootCooldown=0;
-shootBtn.addEventListener("touchstart",(e)=>{
+ex-=dx/dist*0.8;
+ey-=dy/dist*0.8;
 
-aiming=true;
+}
 
-const rect=shootBtn.getBoundingClientRect();
+enemyCooldown++;
 
-aimX=rect.left+55;
-aimY=rect.top+55;
+if(enemyCooldown>90){
 
-});
+enemyCooldown=0;
 
-shootBtn.addEventListener("touchmove",(e)=>{
-
-aimX=e.touches[0].clientX;
-aimY=e.touches[0].clientY;
-
-});
-
-shootBtn.addEventListener("touchend",()=>{
-
-if(!aiming)return;
-
-aiming=false;
-
-const dx=aimX-(px+30);
-const dy=aimY-(py+30);
-
-shootBullet(dx,dy,false);
-
-});
-function shootBullet(dx,dy,fromEnemy=false){
-
-const bullet=document.createElement("div");
-bullet.className="bullet";
-
-let bx=fromEnemy?ex+30:px+30;
-let by=fromEnemy?ey+30:py+30;
-
-bullet.style.left=bx+"px";
-bullet.style.top=by+"px";
-
-document.body.appendChild(bullet);
-
-const dist=Math.sqrt(dx*dx+dy*dy);
-
-const vx=dx/dist*8;
-const vy=dy/dist*8;
-
-const move=setInterval(()=>{
-
-bx+=vx;
-by+=vy;
-
-bullet.style.left=bx+"px";
-bullet.style.top=by+"px";
-
-if(!fromEnemy){
-
-const hit=Math.sqrt(
-(bx-ex)*(bx-ex)+
-(by-ey)*(by-ey)
+shootBullet(
+px-ex,
+py-ey,
+true
 );
 
-if(hit<40){
-
-enemyHP-=40;
-
-if(enemyHP<=0){
-
-alert("勝利！");
-location.reload();
-
 }
 
-bullet.remove();
-clearInterval(move);
+player.style.left=px+"px";
+player.style.top=py+"px";
 
-}
+enemy.style.left=ex+"px";
+enemy.style.top=ey+"px";
 
-}else{
+updateBars();
 
-const hit=Math.sqrt(
-(bx-px)*(bx-px)+
-(by-py)*(by-py)
-);
-
-if(hit<40){
-
-playerHP-=20;
-
-if(playerHP<=0){
-
-alert("敗北...");
-location.reload();
-
-}
-
-bullet.remove();
-clearInterval(move);
-
-}
-
-}
-
-if(
-bx<0||
-by<0||
-bx>window.innerWidth||
-by>window.innerHeight
-){
-
-bullet.remove();
-clearInterval(move);
-
-}
-
-updateUI();
 ctx.clearRect(
 0,
 0,
@@ -454,7 +505,15 @@ aimCanvas.height
 
 if(aiming){
 
-ctx.lineWidth=6;
+const len=
+Math.hypot(
+aimDX,
+aimDY
+);
+
+if(len>0){
+
+ctx.lineWidth=5;
 
 ctx.beginPath();
 
@@ -463,40 +522,36 @@ px+30,
 py+30
 );
 
-const len=Math.sqrt(
-aimX*aimX+
-aimY*aimY
-);
-
-if(len>0){
-
 ctx.lineTo(
-px+30+(aimX/len)*250,
-py+30+(aimY/len)*250
+px+30+(aimDX/len)*220,
+py+30+(aimDY/len)*220
 );
-
-}
 
 ctx.stroke();
 
 }
 
-enemyShootCooldown++;
+}
 
-if(enemyShootCooldown>80){
-
-enemyShootCooldown=0;
-
-const dx=px-ex;
-const dy=py-ey;
-
-shootBullet(dx,dy,true);
+requestAnimationFrame(
+gameLoop
+);
 
 }
-},16);
+
+gameLoop();
+
+window.addEventListener(
+"resize",
+()=>{
+
+aimCanvas.width=
+window.innerWidth;
+
+aimCanvas.height=
+window.innerHeight;
 
 }
-</script>
-
+); 
 </body>
 </html>
