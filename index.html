@@ -325,7 +325,8 @@ updateUI();
 let aiming=false;
 let aimX=0;
 let aimY=0;
-
+let aimStartX=0;
+let aimStartY=0;
 let enemyShootCooldown=0;
 shootBtn.addEventListener("touchstart",(e)=>{
 
@@ -462,10 +463,19 @@ px+30,
 py+30
 );
 
-ctx.lineTo(
-aimX,
-aimY
+const len=Math.sqrt(
+aimX*aimX+
+aimY*aimY
 );
+
+if(len>0){
+
+ctx.lineTo(
+px+30+(aimX/len)*250,
+py+30+(aimY/len)*250
+);
+
+}
 
 ctx.stroke();
 
