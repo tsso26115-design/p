@@ -16,8 +16,8 @@ box-sizing:border-box;
 body{
 overflow:hidden;
 background:#7ec850;
-font-family:sans-serif;
 touch-action:none;
+font-family:sans-serif;
 }
 
 #menu{
@@ -33,11 +33,19 @@ z-index:9999;
 }
 
 .modeBtn{
-width:250px;
+width:260px;
 height:80px;
 font-size:30px;
 border:none;
 border-radius:15px;
+}
+
+#camera{
+position:absolute;
+left:0;
+top:0;
+width:2000px;
+height:2000px;
 }
 
 #game{
@@ -50,13 +58,11 @@ height:100vh;
 overflow:hidden;
 }
 
-#player,
-.enemy{
+#player,.enemy{
 position:absolute;
 width:64px;
 height:64px;
 border-radius:50%;
-z-index:20;
 }
 
 #player{
@@ -71,33 +77,36 @@ background:#f44336;
 position:absolute;
 background:#795548;
 border-radius:10px;
-z-index:5;
 }
 
 .bush{
 position:absolute;
 background:#2e7d32;
 opacity:.8;
-border-radius:12px;
-z-index:4;
+border-radius:10px;
 }
 
 .bullet{
 position:absolute;
 width:16px;
 height:16px;
-background:yellow;
 border-radius:50%;
-z-index:25;
+background:yellow;
+}
+
+.cube{
+position:absolute;
+width:30px;
+height:30px;
+background:#00ffff;
 }
 
 .gem{
 position:absolute;
 width:30px;
 height:30px;
-background:#ff4dd2;
+background:#ff00ff;
 transform:rotate(45deg);
-z-index:15;
 }
 
 .hpBar{
@@ -107,30 +116,29 @@ height:8px;
 background:#333;
 border-radius:10px;
 overflow:hidden;
-z-index:30;
 }
 
 .hpFill{
-width:100%;
 height:100%;
 background:#00ff00;
+width:100%;
 }
 
 #ui{
 position:fixed;
-top:10px;
 left:10px;
+top:10px;
+z-index:1000;
+color:white;
 font-size:22px;
 font-weight:bold;
-color:white;
 text-shadow:2px 2px 5px black;
-z-index:1000;
 }
 
 #leftZone{
 position:fixed;
 left:0;
-bottom:0;
+top:0;
 width:50vw;
 height:100vh;
 z-index:100;
@@ -139,14 +147,13 @@ z-index:100;
 #rightZone{
 position:fixed;
 right:0;
-bottom:0;
+top:0;
 width:50vw;
 height:100vh;
 z-index:100;
 }
 
-#moveBase,
-#aimBase{
+#moveBase,#aimBase{
 position:fixed;
 width:120px;
 height:120px;
@@ -157,8 +164,7 @@ display:none;
 z-index:500;
 }
 
-#moveKnob,
-#aimKnob{
+#moveKnob,#aimKnob{
 position:absolute;
 left:40px;
 top:40px;
@@ -172,13 +178,13 @@ border-radius:50%;
 position:fixed;
 right:25px;
 bottom:150px;
-width:85px;
-height:85px;
+width:90px;
+height:90px;
 border:none;
 border-radius:50%;
 background:#9c27b0;
 color:white;
-font-size:30px;
+font-size:35px;
 z-index:600;
 }
 
@@ -194,7 +200,6 @@ z-index:550;
 
 </style>
 </head>
-
 <body>
 
 <div id="menu">
@@ -217,15 +222,14 @@ z-index:550;
 
 <div id="game">
 
-<div class="wall" style="left:250px;top:150px;width:220px;height:40px"></div>
+<div id="camera">
 
-<div class="wall" style="left:100px;top:450px;width:250px;height:40px"></div>
+<div class="wall" style="left:300px;top:300px;width:250px;height:40px"></div>
+<div class="wall" style="left:1200px;top:600px;width:250px;height:40px"></div>
+<div class="wall" style="left:900px;top:1200px;width:250px;height:40px"></div>
 
-<div class="wall" style="left:550px;top:350px;width:200px;height:40px"></div>
-
-<div class="bush" style="left:500px;top:220px;width:140px;height:140px"></div>
-
-<div class="bush" style="left:200px;top:300px;width:120px;height:120px"></div>
+<div class="bush" style="left:500px;top:500px;width:180px;height:180px"></div>
+<div class="bush" style="left:1400px;top:800px;width:180px;height:180px"></div>
 
 <div id="player"></div>
 
@@ -235,20 +239,23 @@ z-index:550;
 
 </div>
 
+</div>
+
 <div id="leftZone"></div>
 <div id="rightZone"></div>
 
-<div id="moveBase">
-<div id="moveKnob"></div>
-</div>
-
-<div id="aimBase">
-<div id="aimKnob"></div>
-</div>
+<div id="moveBase"><div id="moveKnob"></div></div>
+<div id="aimBase"><div id="aimKnob"></div></div>
 
 <button id="superBtn">⚡</button>
 
 <script>
+
+const MAP_WIDTH=2000;
+const MAP_HEIGHT=2000;
+
+const camera=document.getElementById("camera");
+const game=document.getElementById("game");
 
 const player=document.getElementById("player");
 const ui=document.getElementById("ui");
@@ -261,35 +268,35 @@ aimCanvas.height=window.innerHeight;
 
 let mode="showdown";
 
-let px=120;
-let py=300;
+function startGame(selected){
+mode=selected;
+document.getElementById("menu").style.display="none";
+game.style.display="block";
+}
+
+let px=100;
+let py=100;
 
 let moveX=0;
 let moveY=0;
 
-let aimX=0;
-let aimY=0;
+let shootDirX=1;
+let shootDirY=0;
 
-let moveActive=false;
 let aimActive=false;
 
 let hp=300;
+let maxHP=300;
+
+let power=0;
+let gems=0;
 let superCharge=0;
 
 const enemies=[
-{el:document.getElementById("enemy1"),x:650,y:200,hp:200},
-{el:document.getElementById("enemy2"),x:700,y:450,hp:200},
-{el:document.getElementById("enemy3"),x:500,y:550,hp:200}
+{el:enemy1,x:1600,y:200,hp:250},
+{el:enemy2,x:300,y:1600,hp:250},
+{el:enemy3,x:1700,y:1700,hp:250}
 ];
-
-function startGame(selected){
-
-mode=selected;
-
-document.getElementById("menu").style.display="none";
-document.getElementById("game").style.display="block";
-
-}
 
 const leftZone=document.getElementById("leftZone");
 const rightZone=document.getElementById("rightZone");
@@ -300,9 +307,9 @@ const moveKnob=document.getElementById("moveKnob");
 const aimBase=document.getElementById("aimBase");
 const aimKnob=document.getElementById("aimKnob");
 
-leftZone.addEventListener("touchstart",(e)=>{
+const superBtn=document.getElementById("superBtn");
 
-moveActive=true;
+leftZone.addEventListener("touchstart",e=>{
 
 const x=e.touches[0].clientX;
 const y=e.touches[0].clientY;
@@ -313,9 +320,7 @@ moveBase.style.top=(y-60)+"px";
 
 });
 
-leftZone.addEventListener("touchmove",(e)=>{
-
-if(!moveActive)return;
+leftZone.addEventListener("touchmove",e=>{
 
 const rect=moveBase.getBoundingClientRect();
 
@@ -325,25 +330,21 @@ let y=e.touches[0].clientY-(rect.top+60);
 const d=Math.hypot(x,y);
 
 if(d>45){
-
 x=x/d*45;
 y=y/d*45;
-
 }
-
-moveKnob.style.left=(x+40)+"px";
-moveKnob.style.top=(y+40)+"px";
 
 moveX=x/45;
 moveY=y/45;
+
+moveKnob.style.left=(x+40)+"px";
+moveKnob.style.top=(y+40)+"px";
 
 e.preventDefault();
 
 },{passive:false});
 
 leftZone.addEventListener("touchend",()=>{
-
-moveActive=false;
 
 moveX=0;
 moveY=0;
@@ -355,7 +356,7 @@ moveKnob.style.top="40px";
 
 });
 
-rightZone.addEventListener("touchstart",(e)=>{
+rightZone.addEventListener("touchstart",e=>{
 
 aimActive=true;
 
@@ -363,15 +364,12 @@ const x=e.touches[0].clientX;
 const y=e.touches[0].clientY;
 
 aimBase.style.display="block";
-
 aimBase.style.left=(x-60)+"px";
 aimBase.style.top=(y-60)+"px";
 
 });
 
-rightZone.addEventListener("touchmove",(e)=>{
-
-if(!aimActive)return;
+rightZone.addEventListener("touchmove",e=>{
 
 const rect=aimBase.getBoundingClientRect();
 
@@ -381,17 +379,15 @@ let y=e.touches[0].clientY-(rect.top+60);
 const d=Math.hypot(x,y);
 
 if(d>45){
-
 x=x/d*45;
 y=y/d*45;
-
 }
+
+shootDirX=x;
+shootDirY=y;
 
 aimKnob.style.left=(x+40)+"px";
 aimKnob.style.top=(y+40)+"px";
-
-aimX=x;
-aimY=y;
 
 e.preventDefault();
 
@@ -399,11 +395,11 @@ e.preventDefault();
 
 rightZone.addEventListener("touchend",()=>{
 
-if(Math.hypot(aimX,aimY)>10){
-
-shootBullet(aimX,aimY);
-
-}
+shootBullet(
+shootDirX,
+shootDirY,
+false
+);
 
 aimActive=false;
 
@@ -412,21 +408,18 @@ aimBase.style.display="none";
 aimKnob.style.left="40px";
 aimKnob.style.top="40px";
 
-aimX=0;
-aimY=0;
-
 });
 
-function shootBullet(dx,dy){
+function shootBullet(dx,dy,enemyShot){
 
 const bullet=document.createElement("div");
 
 bullet.className="bullet";
 
-let bx=px+30;
-let by=py+30;
+let bx=enemyShot?enemyShot.x:px+32;
+let by=enemyShot?enemyShot.y:py+32;
 
-document.body.appendChild(bullet);
+camera.appendChild(bullet);
 
 const len=Math.hypot(dx,dy);
 
@@ -441,28 +434,65 @@ by+=vy;
 bullet.style.left=bx+"px";
 bullet.style.top=by+"px";
 
+document.querySelectorAll(".wall").forEach(w=>{
+
+const r=w.getBoundingClientRect();
+
+const wx=r.left-camera.offsetLeft;
+const wy=r.top-camera.offsetTop;
+
+});
+
+if(!enemyShot){
+
 enemies.forEach(enemy=>{
 
 if(enemy.hp<=0)return;
 
-if(Math.hypot(bx-enemy.x,by-enemy.y)<35){
+if(Math.hypot(bx-enemy.x,by-enemy.y)<40){
 
-enemy.hp-=35;
+enemy.hp-=35+(power*5);
 
-superCharge+=5;
+superCharge+=10;
+
+bullet.remove();
+clearInterval(timer);
+
+if(enemy.hp<=0){
+
+const cube=document.createElement("div");
+
+cube.className="cube";
+
+cube.style.left=enemy.x+"px";
+cube.style.top=enemy.y+"px";
+
+camera.appendChild(cube);
+
+}
+
+}
+
+});
+
+}else{
+
+if(Math.hypot(bx-px,by-py)<40){
+
+hp-=20;
 
 bullet.remove();
 clearInterval(timer);
 
 }
 
-});
+}
 
 if(
 bx<0||
 by<0||
-bx>window.innerWidth||
-by>window.innerHeight
+bx>MAP_WIDTH||
+by>MAP_HEIGHT
 ){
 
 bullet.remove();
@@ -474,13 +504,61 @@ clearInterval(timer);
 
 }
 
+superBtn.addEventListener("click",()=>{
+
+if(superCharge<100)return;
+
+superCharge=0;
+
+for(let i=-2;i<=2;i++){
+
+const a=
+Math.atan2(
+shootDirY,
+shootDirX
+)+(i*0.2);
+
+shootBullet(
+Math.cos(a)*100,
+Math.sin(a)*100,
+false
+);
+
+}
+
+});
+
+setInterval(()=>{
+
+if(mode!=="gem")return;
+
+const gem=document.createElement("div");
+
+gem.className="gem";
+
+gem.style.left=
+(200+Math.random()*1600)+"px";
+
+gem.style.top=
+(200+Math.random()*1600)+"px";
+
+camera.appendChild(gem);
+
+},5000);
+
 function gameLoop(){
 
-px+=moveX*5;
-py+=moveY*5;
+px+=moveX*2.5;
+py+=moveY*2.5;
+
+px=Math.max(0,Math.min(MAP_WIDTH-64,px));
+py=Math.max(0,Math.min(MAP_HEIGHT-64,py));
 
 player.style.left=px+"px";
 player.style.top=py+"px";
+
+camera.style.transform=
+`translate(${-px+window.innerWidth/2}px,${-py+window.innerHeight/2}px)`;
 
 enemies.forEach(enemy=>{
 
@@ -496,23 +574,70 @@ const dy=py-enemy.y;
 
 const dist=Math.hypot(dx,dy);
 
-if(dist>180){
+if(dist>220){
 
-enemy.x+=dx/dist*1.5;
-enemy.y+=dy/dist*1.5;
+enemy.x+=dx/dist*1.2;
+enemy.y+=dy/dist*1.2;
 
 }
 
 enemy.el.style.left=enemy.x+"px";
 enemy.el.style.top=enemy.y+"px";
 
+if(Math.random()<0.01){
+
+shootBullet(
+dx,
+dy,
+enemy
+);
+
+}
+
 });
 
-ctx.clearRect(0,0,aimCanvas.width,aimCanvas.height);
+document.querySelectorAll(".cube").forEach(c=>{
 
-if(aimActive){
+const x=parseFloat(c.style.left);
+const y=parseFloat(c.style.top);
 
-const len=Math.hypot(aimX,aimY);
+if(Math.hypot(px-x,py-y)<50){
+
+power++;
+maxHP+=50;
+hp=maxHP;
+
+c.remove();
+
+}
+
+});
+
+document.querySelectorAll(".gem").forEach(g=>{
+
+const x=parseFloat(g.style.left);
+const y=parseFloat(g.style.top);
+
+if(Math.hypot(px-x,py-y)<50){
+
+gems++;
+g.remove();
+
+}
+
+});
+
+ctx.clearRect(
+0,0,
+aimCanvas.width,
+aimCanvas.height
+);
+
+const len=
+Math.hypot(
+shootDirX,
+shootDirY
+);
 
 if(len>0){
 
@@ -520,228 +645,63 @@ ctx.strokeStyle="white";
 ctx.lineWidth=5;
 
 ctx.beginPath();
-ctx.moveTo(px+30,py+30);
+
+ctx.moveTo(
+window.innerWidth/2,
+window.innerHeight/2
+);
 
 ctx.lineTo(
-px+30+(aimX/len)*250,
-py+30+(aimY/len)*250
+window.innerWidth/2+(shootDirX/len)*200,
+window.innerHeight/2+(shootDirY/len)*200
 );
 
 ctx.stroke();
 
 }
 
+ui.innerHTML=
+`❤️ ${Math.floor(hp)}
+<br>⚡ ${Math.floor(superCharge)}%
+<br>💪 ${power}
+<br>💎 ${gems}`;
+
+if(mode==="gem"&&gems>=10){
+
+alert("💎 ジェムグラブ勝利！");
+location.reload();
+
 }
 
-ui.innerHTML=
-"❤️ "+hp+
-"<br>⚡ "+Math.floor(superCharge)+"%"+
-"<br>🎮 "+mode;
+if(
+mode==="showdown" &&
+enemies.filter(e=>e.hp>0).length===0
+){
+
+alert("👑 ショーダウン勝利！");
+location.reload();
+
+}
+
+if(hp<=0){
+
+alert("💀 敗北");
+location.reload();
+
+}
 
 requestAnimationFrame(gameLoop);
 
 }
-// ===== 必殺技 =====
 
-const superBtn =
-document.getElementById("superBtn");
-
-superBtn.addEventListener("click",()=>{
-
-if(superCharge<100)return;
-
-superCharge=0;
-
-for(let i=-2;i<=2;i++){
-
-const angle=
-Math.atan2(aimY||1,aimX||1)
-+(i*0.25);
-
-shootBullet(
-Math.cos(angle)*100,
-Math.sin(angle)*100
-);
-
-}
-
-});
-
-// ===== ジェム =====
-
-const gems=[];
-
-function spawnGem(){
-
-if(mode!=="gem")return;
-
-const gem=document.createElement("div");
-
-gem.className="gem";
-
-const gx=
-100+Math.random()*
-(window.innerWidth-200);
-
-const gy=
-100+Math.random()*
-(window.innerHeight-200);
-
-gem.style.left=gx+"px";
-gem.style.top=gy+"px";
-
-document.getElementById("game")
-.appendChild(gem);
-
-gems.push({
-el:gem,
-x:gx,
-y:gy
-});
-
-}
-
-setInterval(spawnGem,5000);
-
-let gemCount=0;
-
-// ===== 草むら =====
-
-const bushes=
-document.querySelectorAll(".bush");
-
-function updateBush(){
-
-let hidden=false;
-
-bushes.forEach(b=>{
-
-const rect=
-b.getBoundingClientRect();
-
-if(
-px>rect.left &&
-px<rect.right &&
-py>rect.top &&
-py<rect.bottom
-){
-
-hidden=true;
-
-}
-
-});
-
-player.style.opacity=
-hidden?0.35:1;
-
-}
-
-// ===== 壁 =====
-
-const walls=
-document.querySelectorAll(".wall");
-
-function wallCollision(nx,ny){
-
-for(const wall of walls){
-
-const r=
-wall.getBoundingClientRect();
-
-if(
-nx+60>r.left &&
-nx<r.right &&
-ny+60>r.top &&
-ny<r.bottom
-){
-
-return true;
-
-}
-
-}
-
-return false;
-
-}
-
-// ===== 勝敗判定 =====
-
-function checkWin(){
-
-if(mode==="showdown"){
-
-const alive=
-enemies.filter(
-e=>e.hp>0
-).length;
-
-if(alive===0){
-
-alert("🏆 勝利！");
-location.reload();
-
-}
-
-}
-
-if(mode==="gem"){
-
-if(gemCount>=10){
-
-alert("💎 勝利！");
-location.reload();
-
-}
-
-}
-
-}
-
-// ===== gameLoop強化 =====
-
-const oldLoop=gameLoop;
-
-gameLoop=function(){
-
-const nx=px+moveX*5;
-const ny=py+moveY*5;
-
-if(!wallCollision(nx,ny)){
-
-px=nx;
-py=ny;
-
-}
-
-gems.forEach((gem,index)=>{
-
-if(
-Math.hypot(
-px-gem.x,
-py-gem.y
-)<50
-){
-
-gemCount++;
-
-gem.el.remove();
-
-gems.splice(index,1);
-
-}
-
-});
-
-updateBush();
-
-checkWin();
-
-oldLoop();
-
-};
 gameLoop();
+
+window.addEventListener("resize",()=>{
+
+aimCanvas.width=window.innerWidth;
+aimCanvas.height=window.innerHeight;
+
+});
 
 </script>
 
