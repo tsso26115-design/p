@@ -296,7 +296,29 @@ let rightTouch=null;
 // ===== 弾 =====
 
 const bullets=[];
+const aimMaterial=
+new THREE.LineBasicMaterial({
+color:0xffffff,
+transparent:true,
+opacity:0.5
+});
 
+const aimPoints=[
+new THREE.Vector3(),
+new THREE.Vector3()
+];
+
+const aimGeometry=
+new THREE.BufferGeometry()
+.setFromPoints(aimPoints);
+
+const aimLine=
+new THREE.Line(
+aimGeometry,
+aimMaterial
+);
+
+scene.add(aimLine);
 function shootBullet(dx,dz,enemy=false,startObj=null){
 
 const geo=
@@ -577,7 +599,38 @@ player.position.x,
 0,
 player.position.z
 );
+if(
+Math.hypot(aimX,aimY)>1
+){
 
+const len=
+Math.hypot(aimX,aimY);
+
+aimPoints[0].set(
+player.position.x,
+35,
+player.position.z
+);
+
+aimPoints[1].set(
+player.position.x+
+(aimX/len)*250,
+35,
+player.position.z+
+(aimY/len)*250
+);
+
+aimGeometry.setFromPoints(
+aimPoints
+);
+
+aimLine.visible=true;
+
+}else{
+
+aimLine.visible=false;
+
+}
 // 草むら
 
 let hidden=false;
