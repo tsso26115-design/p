@@ -2,10 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Brawl City DX</title>
+<title>Brawl Mini DX</title>
 
 <style>
 
@@ -13,19 +12,63 @@ content="width=device-width,initial-scale=1">
 margin:0;
 padding:0;
 box-sizing:border-box;
+-webkit-user-select:none;
+user-select:none;
 }
 
 body{
 overflow:hidden;
-background:#7ec850;
+background:#6fc14c;
 touch-action:none;
 font-family:sans-serif;
 }
 
+#menu{
+position:fixed;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:
+linear-gradient(
+180deg,
+#5ccf48,
+#2e7d32
+);
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:99999;
+}
+
+#menu h1{
+color:white;
+font-size:60px;
+text-shadow:4px 4px 10px black;
+}
+
+#menu img{
+width:180px;
+height:180px;
+margin:20px;
+}
+
+#playBtn{
+width:240px;
+height:80px;
+font-size:34px;
+border:none;
+border-radius:20px;
+background:#ffca28;
+}
+
 #game{
-position:absolute;
-width:2200px;
-height:2200px;
+position:fixed;
+left:0;
+top:0;
+width:3000px;
+height:3000px;
 }
 
 #camera{
@@ -40,134 +83,76 @@ overflow:hidden;
 #player,
 .enemy{
 position:absolute;
-width:60px;
-height:60px;
-border-radius:50%;
-z-index:20;
+width:72px;
+height:72px;
+background-size:contain;
+background-repeat:no-repeat;
+background-position:center;
+z-index:30;
 }
 
 #player{
 background:#2196f3;
+border-radius:50%;
 }
 
 .enemy{
 background:#f44336;
-}
-
-.road{
-position:absolute;
-background:#999;
-}
-
-.house{
-position:absolute;
-width:180px;
-height:180px;
-background:#ffcc80;
-border:8px solid #795548;
-border-radius:20px;
+border-radius:50%;
 }
 
 .wall{
 position:absolute;
-background:#795548;
-border-radius:10px;
+background:#8d6e63;
+border-radius:12px;
 }
 
 .bush{
 position:absolute;
 background:#2e7d32;
+border-radius:12px;
+}
+
+.water{
+position:absolute;
+background:#2196f3;
 border-radius:20px;
-}
-
-.gem{
-position:absolute;
-width:40px;
-height:40px;
-background:#00e5ff;
-transform:rotate(45deg);
-}
-
-.cube{
-position:absolute;
-width:40px;
-height:40px;
-background:#ff9800;
+border:6px solid #1565c0;
 }
 
 .bullet{
 position:absolute;
-width:14px;
-height:14px;
-background:yellow;
+width:16px;
+height:16px;
+background:#ffd600;
 border-radius:50%;
-z-index:30;
+z-index:25;
 }
 
-#leftZone{
-position:fixed;
-left:0;
-top:0;
-width:50vw;
-height:100vh;
-z-index:300;
-}
-
-#rightZone{
-position:fixed;
-right:0;
-top:0;
-width:50vw;
-height:100vh;
-z-index:300;
-}
-
-#moveBase,
-#aimBase{
-position:fixed;
-width:120px;
-height:120px;
-border-radius:50%;
-background:rgba(255,255,255,.2);
-border:4px solid rgba(255,255,255,.5);
-display:none;
-z-index:400;
-}
-
-#moveKnob,
-#aimKnob{
+.hpBar{
 position:absolute;
-left:40px;
-top:40px;
-width:40px;
-height:40px;
-border-radius:50%;
-background:white;
+width:80px;
+height:10px;
+background:#333;
+border-radius:10px;
+overflow:hidden;
+z-index:40;
 }
 
-#superBtn{
-position:fixed;
-right:30px;
-bottom:150px;
-width:90px;
-height:90px;
-border:none;
-border-radius:50%;
-background:#9c27b0;
-color:white;
-font-size:40px;
-z-index:500;
+.hpFill{
+height:100%;
+background:#00ff00;
+width:100%;
 }
 
-#ui{
-position:fixed;
-top:10px;
-left:10px;
-color:white;
-font-size:22px;
+.damage{
+position:absolute;
+font-size:26px;
 font-weight:bold;
-text-shadow:2px 2px 5px black;
-z-index:600;
+color:white;
+text-shadow:2px 2px 4px black;
+z-index:500;
+pointer-events:none;
 }
 
 #aimCanvas{
@@ -177,7 +162,101 @@ top:0;
 width:100%;
 height:100%;
 pointer-events:none;
-z-index:350;
+z-index:200;
+}
+
+#ui{
+position:fixed;
+left:15px;
+top:15px;
+color:white;
+font-size:22px;
+font-weight:bold;
+text-shadow:2px 2px 5px black;
+z-index:500;
+}
+
+#leftZone{
+position:fixed;
+left:0;
+bottom:0;
+width:50vw;
+height:100vh;
+z-index:100;
+}
+
+#rightZone{
+position:fixed;
+right:0;
+bottom:0;
+width:50vw;
+height:100vh;
+z-index:100;
+}
+
+#moveBase,
+#aimBase{
+position:fixed;
+width:130px;
+height:130px;
+border-radius:50%;
+background:rgba(255,255,255,.18);
+border:4px solid rgba(255,255,255,.5);
+display:none;
+z-index:300;
+}
+
+#moveKnob,
+#aimKnob{
+position:absolute;
+left:45px;
+top:45px;
+width:40px;
+height:40px;
+background:white;
+border-radius:50%;
+}
+
+#superBtn{
+position:fixed;
+right:30px;
+bottom:120px;
+width:95px;
+height:95px;
+border-radius:50%;
+border:none;
+background:#9c27b0;
+color:white;
+font-size:38px;
+z-index:400;
+}
+
+#showdown{
+position:fixed;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+font-size:90px;
+font-weight:bold;
+color:white;
+text-shadow:4px 4px 10px black;
+display:none;
+z-index:9999;
+}
+
+#result{
+position:fixed;
+left:0;
+top:0;
+width:100%;
+height:100%;
+display:none;
+justify-content:center;
+align-items:center;
+font-size:90px;
+font-weight:bold;
+background:rgba(0,0,0,.8);
+z-index:99999;
 }
 
 </style>
@@ -185,47 +264,52 @@ z-index:350;
 
 <body>
 
+<div id="menu">
+
+<h1>BRAWL MINI DX</h1>
+
+<img src="player_front.png">
+
+<button id="playBtn">
+▶ PLAY
+</button>
+
+</div>
+
+<div id="showdown">
+SHOWDOWN
+</div>
+
+<div id="result"></div>
+
 <div id="ui">
-❤️ <span id="hpText">450</span><br>
-⚡ <span id="superText">0</span>%<br>
-💎 <span id="gemText">0</span>
+
+❤️ <span id="hpText">450</span>
+
+<br>
+
+⚡ <span id="superText">0</span>%
+
+<br>
+
+💪 <span id="killsText">0</span>
+
+<br>
+
+💎 <span id="gemsText">0</span>
+
 </div>
 
 <canvas id="aimCanvas"></canvas>
 
 <div id="camera">
+
 <div id="game">
-
-<div class="road"
-style="left:0;top:900px;width:2200px;height:120px"></div>
-
-<div class="road"
-style="left:1050px;top:0;width:120px;height:2200px"></div>
-
-<div class="house"
-style="left:250px;top:250px"></div>
-
-<div class="house"
-style="left:1500px;top:350px"></div>
-
-<div class="house"
-style="left:1400px;top:1400px"></div>
-
-<div class="wall"
-style="left:700px;top:600px;width:350px;height:40px"></div>
-
-<div class="wall"
-style="left:1300px;top:1000px;width:300px;height:40px"></div>
-
-<div class="bush"
-style="left:400px;top:1300px;width:300px;height:220px"></div>
-
-<div class="bush"
-style="left:1600px;top:700px;width:300px;height:220px"></div>
 
 <div id="player"></div>
 
 </div>
+
 </div>
 
 <div id="leftZone"></div>
@@ -239,8 +323,9 @@ style="left:1600px;top:700px;width:300px;height:220px"></div>
 <div id="aimKnob"></div>
 </div>
 
-<button id="superBtn">⚡</button>
-
+<button id="superBtn">
+⚡
+</button>
 <script>
 
 const game=document.getElementById("game");
@@ -248,10 +333,8 @@ const player=document.getElementById("player");
 
 const hpText=document.getElementById("hpText");
 const superText=document.getElementById("superText");
-const gemText=document.getElementById("gemText");
-
-const leftZone=document.getElementById("leftZone");
-const rightZone=document.getElementById("rightZone");
+const killsText=document.getElementById("killsText");
+const gemsText=document.getElementById("gemsText");
 
 const moveBase=document.getElementById("moveBase");
 const moveKnob=document.getElementById("moveKnob");
@@ -259,18 +342,22 @@ const moveKnob=document.getElementById("moveKnob");
 const aimBase=document.getElementById("aimBase");
 const aimKnob=document.getElementById("aimKnob");
 
+const leftZone=document.getElementById("leftZone");
+const rightZone=document.getElementById("rightZone");
+
 const aimCanvas=document.getElementById("aimCanvas");
 const ctx=aimCanvas.getContext("2d");
 
 aimCanvas.width=innerWidth;
 aimCanvas.height=innerHeight;
 
-let px=1000;
-let py=1100;
+let px=1500;
+let py=1500;
 
 let hp=450;
-let superCharge=0;
+let kills=0;
 let gems=0;
+let superCharge=0;
 
 let moveX=0;
 let moveY=0;
@@ -286,37 +373,113 @@ let aimActive=false;
 
 const enemies=[];
 
-for(let i=0;i<6;i++){
+// 敵生成
 
-const e=document.createElement("div");
-e.className="enemy";
+for(let i=0;i<8;i++){
 
-game.appendChild(e);
+const enemy=document.createElement("div");
+
+enemy.className="enemy";
+
+game.appendChild(enemy);
 
 enemies.push({
-el:e,
-x:Math.random()*1800+100,
-y:Math.random()*1800+100,
+
+el:enemy,
+
+x:Math.random()*2500+150,
+y:Math.random()*2500+150,
+
 hp:250
+
 });
 
 }
-// ===== 左スティック =====
+
+// マップ
+
+for(let i=0;i<15;i++){
+
+const wall=document.createElement("div");
+
+wall.className="wall";
+
+wall.style.left=
+(Math.random()*2600)+"px";
+
+wall.style.top=
+(Math.random()*2600)+"px";
+
+wall.style.width=
+(150+Math.random()*150)+"px";
+
+wall.style.height="40px";
+
+game.appendChild(wall);
+
+}
+
+for(let i=0;i<12;i++){
+
+const bush=document.createElement("div");
+
+bush.className="bush";
+
+bush.style.left=
+(Math.random()*2500)+"px";
+
+bush.style.top=
+(Math.random()*2500)+"px";
+
+bush.style.width="220px";
+
+bush.style.height="180px";
+
+game.appendChild(bush);
+
+}
+
+for(let i=0;i<5;i++){
+
+const water=document.createElement("div");
+
+water.className="water";
+
+water.style.left=
+(Math.random()*2500)+"px";
+
+water.style.top=
+(Math.random()*2500)+"px";
+
+water.style.width="240px";
+
+water.style.height="180px";
+
+game.appendChild(water);
+
+}
+
+// 左スティック
 
 leftZone.addEventListener("touchstart",(e)=>{
 
 if(moveTouchId!==null)return;
 
-moveTouchId=e.changedTouches[0].identifier;
+moveTouchId=
+e.changedTouches[0].identifier;
 
 moveActive=true;
 
-const x=e.changedTouches[0].clientX;
-const y=e.changedTouches[0].clientY;
+const x=
+e.changedTouches[0].clientX;
+
+const y=
+e.changedTouches[0].clientY;
 
 moveBase.style.display="block";
-moveBase.style.left=(x-60)+"px";
-moveBase.style.top=(y-60)+"px";
+
+moveBase.style.left=(x-65)+"px";
+moveBase.style.top=(y-65)+"px";
 
 });
 
@@ -332,10 +495,10 @@ const rect=
 moveBase.getBoundingClientRect();
 
 let x=
-touch.clientX-(rect.left+60);
+touch.clientX-(rect.left+65);
 
 let y=
-touch.clientY-(rect.top+60);
+touch.clientY-(rect.top+65);
 
 const d=Math.hypot(x,y);
 
@@ -346,27 +509,22 @@ y=y/d*45;
 
 }
 
-moveKnob.style.left=(x+40)+"px";
-moveKnob.style.top=(y+40)+"px";
-
 moveX=x/45;
 moveY=y/45;
 
-break;
+moveKnob.style.left=
+(x+45)+"px";
+
+moveKnob.style.top=
+(y+45)+"px";
 
 }
 
 }
-
-e.preventDefault();
 
 },{passive:false});
 
 leftZone.addEventListener("touchend",(e)=>{
-
-for(const touch of e.changedTouches){
-
-if(touch.identifier===moveTouchId){
 
 moveTouchId=null;
 
@@ -377,16 +535,9 @@ moveY=0;
 
 moveBase.style.display="none";
 
-moveKnob.style.left="40px";
-moveKnob.style.top="40px";
-
-}
-
-}
-
 });
 
-// ===== 右エイム =====
+// 右エイム
 
 rightZone.addEventListener("touchstart",(e)=>{
 
@@ -395,12 +546,16 @@ e.changedTouches[0].identifier;
 
 aimActive=true;
 
-const x=e.changedTouches[0].clientX;
-const y=e.changedTouches[0].clientY;
+const x=
+e.changedTouches[0].clientX;
+
+const y=
+e.changedTouches[0].clientY;
 
 aimBase.style.display="block";
-aimBase.style.left=(x-60)+"px";
-aimBase.style.top=(y-60)+"px";
+
+aimBase.style.left=(x-65)+"px";
+aimBase.style.top=(y-65)+"px";
 
 });
 
@@ -416,10 +571,10 @@ const rect=
 aimBase.getBoundingClientRect();
 
 let x=
-touch.clientX-(rect.left+60);
+touch.clientX-(rect.left+65);
 
 let y=
-touch.clientY-(rect.top+60);
+touch.clientY-(rect.top+65);
 
 const d=Math.hypot(x,y);
 
@@ -433,77 +588,36 @@ y=y/d*45;
 aimX=x;
 aimY=y;
 
-aimKnob.style.left=(x+40)+"px";
-aimKnob.style.top=(y+40)+"px";
+aimKnob.style.left=
+(x+45)+"px";
 
-break;
+aimKnob.style.top=
+(y+45)+"px";
 
 }
 
 }
-
-e.preventDefault();
 
 },{passive:false});
 
 rightZone.addEventListener("touchend",(e)=>{
 
-for(const touch of e.changedTouches){
-
-if(touch.identifier===aimTouchId){
-
 if(Math.hypot(aimX,aimY)>10){
 
-shootBullet(
-aimX,
-aimY
-);
+shootBullet(aimX,aimY);
 
 }
 
 aimTouchId=null;
+
 aimActive=false;
+
+aimX=0;
+aimY=0;
 
 aimBase.style.display="none";
 
-aimKnob.style.left="40px";
-aimKnob.style.top="40px";
-
-}
-
-}
-
 });
-
-// ===== 草むら判定 =====
-
-function inBush(x,y){
-
-for(const bush of
-document.querySelectorAll(".bush")){
-
-const bx=parseInt(bush.style.left);
-const by=parseInt(bush.style.top);
-
-const bw=parseInt(bush.style.width);
-const bh=parseInt(bush.style.height);
-
-if(
-x>bx &&
-x<bx+bw &&
-y>by &&
-y<by+bh
-){
-return true;
-}
-
-}
-
-return false;
-
-}
-
-// ===== 弾 =====
 
 function shootBullet(dx,dy){
 
@@ -512,8 +626,8 @@ document.createElement("div");
 
 bullet.className="bullet";
 
-let bx=px+30;
-let by=py+30;
+let bx=px+36;
+let by=py+36;
 
 bullet.style.left=bx+"px";
 bullet.style.top=by+"px";
@@ -522,40 +636,16 @@ game.appendChild(bullet);
 
 const len=Math.hypot(dx,dy);
 
-const vx=dx/len*11;
-const vy=dy/len*11;
+const vx=dx/len*12;
+const vy=dy/len*12;
 
-const timer=setInterval(()=>{
+const move=setInterval(()=>{
 
 bx+=vx;
 by+=vy;
 
 bullet.style.left=bx+"px";
 bullet.style.top=by+"px";
-
-for(const wall of
-document.querySelectorAll(".wall")){
-
-const wx=parseInt(wall.style.left);
-const wy=parseInt(wall.style.top);
-
-const ww=parseInt(wall.style.width);
-const wh=parseInt(wall.style.height);
-
-if(
-bx>wx &&
-bx<wx+ww &&
-by>wy &&
-by<wy+wh
-){
-
-bullet.remove();
-clearInterval(timer);
-return;
-
-}
-
-}
 
 for(const enemy of enemies){
 
@@ -572,24 +662,14 @@ enemy.hp-=40;
 superCharge+=5;
 
 bullet.remove();
-clearInterval(timer);
+
+clearInterval(move);
 
 if(enemy.hp<=0){
 
 enemy.el.remove();
 
-const cube=
-document.createElement("div");
-
-cube.className="cube";
-
-cube.style.left=
-enemy.x+"px";
-
-cube.style.top=
-enemy.y+"px";
-
-game.appendChild(cube);
+kills++;
 
 }
 
@@ -600,24 +680,23 @@ game.appendChild(cube);
 if(
 bx<0||
 by<0||
-bx>2200||
-by>2200
+bx>3000||
+by>3000
 ){
 
 bullet.remove();
-clearInterval(timer);
+clearInterval(move);
 
 }
 
 },16);
 
 }
-
-// ===== スーパー =====
+// ===== スーパー技 =====
 
 document
 .getElementById("superBtn")
-.onclick=()=>{
+.addEventListener("click",()=>{
 
 if(superCharge<100)return;
 
@@ -627,7 +706,7 @@ for(let i=-2;i<=2;i++){
 
 const angle=
 Math.atan2(aimY,aimX)
-+(i*0.2);
++(i*0.25);
 
 shootBullet(
 Math.cos(angle)*100,
@@ -636,43 +715,149 @@ Math.sin(angle)*100
 
 }
 
+});
+
+// ===== ロビー =====
+
+const menu=
+document.getElementById("menu");
+
+const playBtn=
+document.getElementById("playBtn");
+
+const showdown=
+document.getElementById("showdown");
+
+playBtn.onclick=()=>{
+
+menu.style.display="none";
+
+showdown.style.display="block";
+
+setTimeout(()=>{
+
+showdown.style.display="none";
+
+},2000);
+
 };
 
-// ===== メインループ =====
+// ===== 勝利 =====
 
-function gameLoop(){
+function showVictory(){
 
-px+=moveX*2.8;
-py+=moveY*2.8;
+const result=
+document.getElementById("result");
 
-player.style.left=px+"px";
-player.style.top=py+"px";
+result.style.display="flex";
 
-game.style.transform=
-`translate(
-${-px+innerWidth/2}px,
-${-py+innerHeight/2}px
-)`;
+result.style.color="#ffd700";
 
-// 敵AI
+result.innerHTML=
+"🏆 VICTORY";
+
+}
+
+// ===== 敗北 =====
+
+function showDefeat(){
+
+const result=
+document.getElementById("result");
+
+result.style.display="flex";
+
+result.style.color="#ff4444";
+
+result.innerHTML=
+"💀 DEFEAT";
+
+}
+
+// ===== 草むら =====
+
+function updateBush(){
+
+let hidden=false;
+
+document
+.querySelectorAll(".bush")
+.forEach(b=>{
+
+const x=parseInt(b.style.left);
+const y=parseInt(b.style.top);
+
+const w=parseInt(b.style.width);
+const h=parseInt(b.style.height);
+
+if(
+px>x &&
+px<x+w &&
+py>y &&
+py<y+h
+){
+
+hidden=true;
+
+}
+
+});
+
+player.style.opacity=
+hidden?0.5:1;
+
+}
+
+// ===== キャラ向き =====
+
+function updateDirection(){
+
+if(
+Math.abs(moveX)>
+Math.abs(moveY)
+){
+
+if(moveX>0){
+
+player.style.transform=
+"scaleX(1)";
+
+}else if(moveX<0){
+
+player.style.transform=
+"scaleX(-1)";
+
+}
+
+}
+
+}
+
+// ===== 敵AI =====
+
+let enemyCooldown=0;
+
+function updateEnemies(){
+
+enemyCooldown++;
 
 for(const enemy of enemies){
 
 if(enemy.hp<=0)continue;
 
-const dx=px-enemy.x;
-const dy=py-enemy.y;
+const dx=
+px-enemy.x;
+
+const dy=
+py-enemy.y;
 
 const dist=
 Math.hypot(dx,dy);
 
-if(
-dist>250 &&
-!inBush(px,py)
-){
+if(dist>250){
 
-enemy.x+=dx/dist*1.2;
-enemy.y+=dy/dist*1.2;
+enemy.x+=dx/dist*1.5;
+enemy.y+=dy/dist*1.5;
 
 }
 
@@ -684,41 +869,120 @@ enemy.y+"px";
 
 }
 
-// キューブ取得
+if(enemyCooldown>90){
 
-document
-.querySelectorAll(".cube")
-.forEach(c=>{
+enemyCooldown=0;
 
-const x=parseInt(c.style.left);
-const y=parseInt(c.style.top);
+for(const enemy of enemies){
+
+if(enemy.hp<=0)
+continue;
+
+const bullet=
+document.createElement("div");
+
+bullet.className=
+"bullet";
+
+let bx=
+enemy.x+36;
+
+let by=
+enemy.y+36;
+
+game.appendChild(
+bullet
+);
+
+const dx=
+px-enemy.x;
+
+const dy=
+py-enemy.y;
+
+const len=
+Math.hypot(dx,dy);
+
+const vx=
+dx/len*8;
+
+const vy=
+dy/len*8;
+
+const timer=
+setInterval(()=>{
+
+bx+=vx;
+by+=vy;
+
+bullet.style.left=
+bx+"px";
+
+bullet.style.top=
+by+"px";
 
 if(
 Math.hypot(
-px-x,
-py-y
-)<50){
+bx-px,
+by-py
+)<35
+){
 
-c.remove();
+hp-=25;
 
-hp+=50;
+bullet.remove();
+
+clearInterval(
+timer
+);
+
+if(hp<=0){
+
+showDefeat();
 
 }
 
-});
+}
 
-// UI
+if(
+bx<0||
+by<0||
+bx>3000||
+by>3000
+){
 
-hpText.textContent=
-Math.floor(hp);
+bullet.remove();
 
-superText.textContent=
-Math.floor(superCharge);
+clearInterval(
+timer
+);
 
-gemText.textContent=
-gems;
+}
 
-// エイム線
+},16);
+
+}
+
+}
+
+}
+
+// ===== カメラ =====
+
+function updateCamera(){
+
+game.style.transform=
+
+`translate(
+${-px+innerWidth/2}px,
+${-py+innerHeight/2}px
+)`;
+
+}
+
+// ===== エイム線 =====
+
+function drawAim(){
 
 ctx.clearRect(
 0,
@@ -727,7 +991,7 @@ aimCanvas.width,
 aimCanvas.height
 );
 
-if(aimActive){
+if(!aimActive)return;
 
 const len=
 Math.hypot(
@@ -735,10 +999,10 @@ aimX,
 aimY
 );
 
-if(len>0){
+if(len<1)return;
 
 ctx.strokeStyle=
-"rgba(255,255,255,0.45)";
+"rgba(255,255,255,.45)";
 
 ctx.lineWidth=6;
 
@@ -760,6 +1024,62 @@ innerHeight/2+
 ctx.stroke();
 
 }
+
+// ===== メインループ =====
+
+function gameLoop(){
+
+px+=moveX*3;
+py+=moveY*3;
+
+if(px<0)px=0;
+if(py<0)py=0;
+
+if(px>3000)px=3000;
+if(py>3000)py=3000;
+
+player.style.left=
+px+"px";
+
+player.style.top=
+py+"px";
+
+updateCamera();
+
+updateBush();
+
+updateDirection();
+
+updateEnemies();
+
+drawAim();
+
+hpText.textContent=
+Math.floor(hp);
+
+superText.textContent=
+Math.floor(superCharge);
+
+killsText.textContent=
+kills;
+
+gemsText.textContent=
+gems;
+
+// 全敵撃破
+
+let alive=0;
+
+for(const enemy of enemies){
+
+if(enemy.hp>0)
+alive++;
+
+}
+
+if(alive===0){
+
+showVictory();
 
 }
 
@@ -785,5 +1105,6 @@ innerHeight;
 );
 
 </script>
+
 </body>
 </html>
