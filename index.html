@@ -6,96 +6,44 @@
 
 <title>Brawl Mini DX 3D</title>
 
-<style>
+<link rel="stylesheet" href="style.css">
 
-html,body{
-margin:0;
-width:100%;
-height:100%;
-overflow:hidden;
-touch-action:none;
-background:#000;
-font-family:sans-serif;
-}
-
-#game{
-width:100%;
-height:100%;
-}
-
-#ui{
-position:fixed;
-top:10px;
-left:10px;
-color:white;
-font-size:24px;
-font-weight:bold;
-z-index:10;
-text-shadow:2px 2px 4px black;
-}
-
-#leftZone{
-position:fixed;
-left:0;
-top:0;
-width:50vw;
-height:100vh;
-z-index:20;
-}
-
-#rightZone{
-position:fixed;
-right:0;
-top:0;
-width:50vw;
-height:100vh;
-z-index:20;
-}
-
-#moveBase,
-#aimBase{
-position:fixed;
-width:120px;
-height:120px;
-border-radius:50%;
-background:rgba(255,255,255,.15);
-border:4px solid rgba(255,255,255,.5);
-display:none;
-z-index:50;
-}
-
-#moveKnob,
-#aimKnob{
-position:absolute;
-left:40px;
-top:40px;
-width:40px;
-height:40px;
-border-radius:50%;
-background:white;
-}
-
-#superBtn{
-position:fixed;
-right:25px;
-bottom:120px;
-width:90px;
-height:90px;
-border:none;
-border-radius:50%;
-background:#9c27b0;
-color:white;
-font-size:35px;
-z-index:30;
-}
-
-</style>
 </head>
-
 <body>
 
-<div id="ui">
-❤️ HP: <span id="hp">500</span>
+<div id="menu">
+
+<h1>BRAWL MINI DX</h1>
+
+<button id="playBtn">
+PLAY
+</button>
+
+</div>
+
+<div id="hud">
+
+<div id="hpBox">
+HP: <span id="hp">500</span>
+</div>
+
+<div id="playersBox">
+PLAYERS LEFT:
+<span id="playersLeft">10</span>
+</div>
+
+<div id="cubeBox">
+💎 <span id="cubeCount">0</span>
+</div>
+
+</div>
+
+<div id="victory">
+🏆 VICTORY
+</div>
+
+<div id="defeat">
+💀 DEFEAT
 </div>
 
 <div id="game"></div>
@@ -111,7 +59,9 @@ z-index:30;
 <div id="aimKnob"></div>
 </div>
 
-<button id="superBtn">⚡</button>
+<button id="superBtn">
+⚡
+</button>
 
 <script type="module" src="main.js"></script>
 
