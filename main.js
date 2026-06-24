@@ -307,15 +307,42 @@ scene.add(leaves);
 const loader =
 new THREE.TextureLoader();
 
-const playerTexture=
-loader.load(
+const textures={
+
+front:loader.load(
 "images/player/player_front.png"
-);
+),
+
+back:loader.load(
+"images/player/player_back.png"
+),
+
+left:loader.load(
+"images/player/player_left.png"
+),
+
+right:loader.load(
+"images/player/player_right.png"
+),
+
+attack1:loader.load(
+"images/player/player_attack1.png"
+),
+
+attack2:loader.load(
+"images/player/player_attack2.png"
+),
+
+attack3:loader.load(
+"images/player/player_attack3.png"
+)
+
+};
 
 const playerMaterial=
 new THREE.SpriteMaterial({
 
-map:playerTexture,
+map:textures.front,
 transparent:true
 
 });
@@ -326,8 +353,8 @@ playerMaterial
 );
 
 player.scale.set(
-120,
-120,
+180,
+180,
 1
 );
 
@@ -506,6 +533,42 @@ cubes.push(cube);
 
 function shootBullet(dx,dz,enemy=false,owner=null){
 
+if(!enemy){
+
+player.material.map=
+textures.attack1;
+
+player.material.needsUpdate=true;
+
+setTimeout(()=>{
+
+player.material.map=
+textures.attack2;
+
+player.material.needsUpdate=true;
+
+},60);
+
+setTimeout(()=>{
+
+player.material.map=
+textures.attack3;
+
+player.material.needsUpdate=true;
+
+},120);
+
+setTimeout(()=>{
+
+player.material.map=
+textures.front;
+
+player.material.needsUpdate=true;
+
+},180);
+
+}
+
 const bullet=
 new THREE.Mesh(
 
@@ -545,6 +608,7 @@ enemy
 };
 
 scene.add(bullet);
+
 bullets.push(bullet);
 
 }
@@ -831,7 +895,37 @@ moveX*3;
 
 player.position.z+=
 moveY*3;
+if(Math.abs(moveX)>Math.abs(moveY)){
 
+if(moveX>0){
+
+player.material.map=
+textures.right;
+
+}else if(moveX<0){
+
+player.material.map=
+textures.left;
+
+}
+
+}else{
+
+if(moveY>0){
+
+player.material.map=
+textures.front;
+
+}else if(moveY<0){
+
+player.material.map=
+textures.back;
+
+}
+
+}
+
+player.material.needsUpdate=true;
 // カメラ
 
 camera.position.set(
