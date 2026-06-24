@@ -1,95 +1,116 @@
 import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
 
+// ====================
+// 基本設定
+// ====================
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb);
 
 const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth/window.innerHeight,
-  0.1,
-  5000
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+5000
 );
 
 const renderer = new THREE.WebGLRenderer({
-  antialias:true
+antialias:true
 });
 
 renderer.setSize(
-  window.innerWidth,
-  window.innerHeight
+window.innerWidth,
+window.innerHeight
 );
 
 document
 .getElementById("game")
 .appendChild(renderer.domElement);
 
-// ===== ライト =====
+// ====================
+// ライト
+// ====================
 
 const ambient =
 new THREE.AmbientLight(
-  0xffffff,
-  1
+0xffffff,
+1.4
 );
 
 scene.add(ambient);
 
 const sun =
 new THREE.DirectionalLight(
-  0xffffff,
-  2
+0xffffff,
+2
 );
 
 sun.position.set(
-  100,
-  200,
-  100
+500,
+800,
+500
 );
 
 scene.add(sun);
 
-// ===== 地面 =====
+// ====================
+// 地面
+// ====================
 
 const ground =
 new THREE.Mesh(
 
 new THREE.PlaneGeometry(
-  3000,
-  3000
+4000,
+4000
 ),
 
 new THREE.MeshLambertMaterial({
-  color:0x71c75a
+color:0x79c95a
 })
 
 );
 
-ground.rotation.x =
+ground.rotation.x=
 -Math.PI/2;
 
 scene.add(ground);
 
-// ===== 道路 =====
+// ====================
+// 配列
+// ====================
+
+const walls=[];
+const bushes=[];
+const enemies=[];
+const bullets=[];
+const cubes=[];
+const boxes=[];
+
+// ====================
+// 道路
+// ====================
 
 function road(x,z,w,h){
 
-const r =
+const r=
 new THREE.Mesh(
 
 new THREE.BoxGeometry(
 w,
-1,
+2,
 h
 ),
 
 new THREE.MeshLambertMaterial({
-color:0x777777
+color:0x666666
 })
 
 );
 
 r.position.set(
 x,
-0.5,
+1,
 z
 );
 
@@ -97,18 +118,37 @@ scene.add(r);
 
 }
 
-road(0,0,3000,200);
-road(0,800,3000,200);
-road(0,-800,3000,200);
+for(let i=-1500;i<=1500;i+=500){
 
-road(800,0,200,3000);
-road(-800,0,200,3000);
+road(
+0,
+i,
+4000,
+150
+);
 
-// ===== 建物 =====
+road(
+i,
+0,
+150,
+4000
+);
 
-function building(x,z,w,h,height){
+}
 
-const b =
+// ====================
+// 建物
+// ====================
+
+function building(
+x,
+z,
+w,
+h,
+height
+){
+
+const b=
 new THREE.Mesh(
 
 new THREE.BoxGeometry(
@@ -118,7 +158,7 @@ h
 ),
 
 new THREE.MeshLambertMaterial({
-color:0xc9a06d
+color:0xc69c6d
 })
 
 );
@@ -135,47 +175,31 @@ walls.push(b);
 
 }
 
-const walls=[];
+for(let i=0;i<35;i++){
 
 building(
-500,
-300,
-250,
-250,
-120
+
+(Math.random()-0.5)*3200,
+
+(Math.random()-0.5)*3200,
+
+150+Math.random()*150,
+
+150+Math.random()*150,
+
+100+Math.random()*250
+
 );
 
-building(
--600,
--200,
-300,
-300,
-150
-);
+}
 
-building(
-800,
-900,
-300,
-200,
-180
-);
-
-building(
--1000,
-800,
-350,
-250,
-160
-);
-
-// ===== 草むら =====
-
-const bushes=[];
+// ====================
+// 草むら
+// ====================
 
 function bush(x,z,w,h){
 
-const b =
+const b=
 new THREE.Mesh(
 
 new THREE.BoxGeometry(
@@ -202,105 +226,130 @@ bushes.push(b);
 
 }
 
-bush(
-300,
-1000,
-300,
-250
-);
+for(let i=0;i<15;i++){
 
 bush(
--800,
--700,
-250,
-250
+
+(Math.random()-0.5)*3200,
+
+(Math.random()-0.5)*3200,
+
+220,
+
+220
+
 );
 
-// ===== プレイヤー =====
+}
 
-const player =
+// ====================
+// 公園
+// ====================
+
+for(let i=0;i<30;i++){
+
+const tree=
 new THREE.Mesh(
 
 new THREE.CylinderGeometry(
-25,
-25,
-60,
-24
+10,
+10,
+50
 ),
 
 new THREE.MeshLambertMaterial({
-color:0x2196f3
+color:0x6b4f2a
 })
 
 );
 
+tree.position.set(
+
+(Math.random()-0.5)*3000,
+
+25,
+
+(Math.random()-0.5)*3000
+
+);
+
+scene.add(tree);
+
+const leaves=
+new THREE.Mesh(
+
+new THREE.SphereGeometry(
+35,
+12,
+12
+),
+
+new THREE.MeshLambertMaterial({
+color:0x2e8b57
+})
+
+);
+
+leaves.position.set(
+tree.position.x,
+70,
+tree.position.z
+);
+
+scene.add(leaves);
+
+}
+
+// ====================
+// プレイヤー画像
+// ====================
+
+const loader =
+new THREE.TextureLoader();
+
+const playerTexture=
+loader.load(
+"images/player/player_front.png"
+);
+
+const playerMaterial=
+new THREE.SpriteMaterial({
+
+map:playerTexture,
+transparent:true
+
+});
+
+const player=
+new THREE.Sprite(
+playerMaterial
+);
+
+player.scale.set(
+120,
+120,
+1
+);
+
 player.position.set(
 0,
-30,
+70,
 0
 );
 
 scene.add(player);
 
-// ===== 敵 =====
+// ====================
+// エイム線
+// ====================
 
-const enemies=[];
-
-for(let i=0;i<5;i++){
-
-const enemy =
-new THREE.Mesh(
-
-new THREE.CylinderGeometry(
-25,
-25,
-60,
-24
-),
-
-new THREE.MeshLambertMaterial({
-color:0xf44336
-})
-
-);
-
-enemy.position.set(
-(Math.random()-0.5)*2000,
-30,
-(Math.random()-0.5)*2000
-);
-
-scene.add(enemy);
-
-enemies.push(enemy);
-
-}
-
-// ===== HP =====
-
-let hp=500;
-
-const hpUI =
-document.getElementById("hp");
-
-// ===== 移動 =====
-
-let moveX=0;
-let moveY=0;
-
-let aimX=0;
-let aimY=0;
-
-let leftTouch=null;
-let rightTouch=null;
-// ===== 弾 =====
-
-const bullets=[];
 const aimMaterial=
 new THREE.LineBasicMaterial({
+
 color:0xffffff,
 transparent:true,
 opacity:0.5
+
 });
 
 const aimPoints=[
@@ -310,7 +359,9 @@ new THREE.Vector3()
 
 const aimGeometry=
 new THREE.BufferGeometry()
-.setFromPoints(aimPoints);
+.setFromPoints(
+aimPoints
+);
 
 const aimLine=
 new THREE.Line(
@@ -318,24 +369,160 @@ aimGeometry,
 aimMaterial
 );
 
-scene.add(aimLine);
-function shootBullet(dx,dz,enemy=false,startObj=null){
+scene.add(
+aimLine
+);
 
-const geo=
-new THREE.SphereGeometry(8,12,12);
+// ====================
+// 敵
+// ====================
 
-const mat=
+for(let i=0;i<9;i++){
+
+const enemy=
+new THREE.Mesh(
+
+new THREE.CylinderGeometry(
+30,
+30,
+60,
+20
+),
+
 new THREE.MeshLambertMaterial({
-color:enemy?0xff4444:0xffff00
-});
+color:0xf44336
+})
+
+);
+
+enemy.position.set(
+
+(Math.random()-0.5)*2800,
+
+30,
+
+(Math.random()-0.5)*2800
+
+);
+
+enemy.hp=300;
+
+scene.add(enemy);
+
+enemies.push(enemy);
+
+}
+
+// ====================
+// ステータス
+// ====================
+
+let hp=500;
+let power=0;
+let alivePlayers=10;
+
+document.getElementById(
+"playersLeft"
+).innerHTML=
+alivePlayers;
+
+// ====================
+// 入力
+// ====================
+
+let moveX=0;
+let moveY=0;
+
+let aimX=0;
+let aimY=0;
+
+let leftTouch=null;
+let rightTouch=null;
+// ====================
+// ボックス
+// ====================
+
+for(let i=0;i<10;i++){
+
+const box=
+new THREE.Mesh(
+
+new THREE.BoxGeometry(
+60,60,60
+),
+
+new THREE.MeshLambertMaterial({
+color:0xc98b3c
+})
+
+);
+
+box.position.set(
+(Math.random()-0.5)*2500,
+30,
+(Math.random()-0.5)*2500
+);
+
+box.hp=200;
+
+scene.add(box);
+boxes.push(box);
+
+}
+
+// ====================
+// パワーキューブ
+// ====================
+
+function spawnCube(x,z){
+
+const cube=
+new THREE.Mesh(
+
+new THREE.BoxGeometry(
+30,30,30
+),
+
+new THREE.MeshLambertMaterial({
+color:0x00ff66
+})
+
+);
+
+cube.position.set(
+x,
+20,
+z
+);
+
+scene.add(cube);
+cubes.push(cube);
+
+}
+
+// ====================
+// 弾
+// ====================
+
+function shootBullet(dx,dz,enemy=false,owner=null){
 
 const bullet=
-new THREE.Mesh(geo,mat);
+new THREE.Mesh(
 
-if(enemy){
+new THREE.SphereGeometry(
+8,10,10
+),
+
+new THREE.MeshLambertMaterial({
+color:enemy?0xff5555:0xffff00
+})
+
+);
+
+if(owner){
 
 bullet.position.copy(
-startObj.position
+owner.position
 );
 
 }else{
@@ -346,12 +533,15 @@ player.position
 
 }
 
-const len=Math.hypot(dx,dz);
+const len=
+Math.hypot(dx,dz);
 
 bullet.userData={
+
 vx:(dx/len)*12,
 vz:(dz/len)*12,
 enemy
+
 };
 
 scene.add(bullet);
@@ -359,7 +549,9 @@ bullets.push(bullet);
 
 }
 
-// ===== スーパー =====
+// ====================
+// スーパー
+// ====================
 
 document
 .getElementById("superBtn")
@@ -382,7 +574,23 @@ Math.sin(angle)*100
 
 });
 
-// ===== 左スティック =====
+// ====================
+// PLAY
+// ====================
+
+document
+.getElementById("playBtn")
+.onclick=()=>{
+
+document
+.getElementById("menu")
+.style.display="none";
+
+};
+
+// ====================
+// 左スティック
+// ====================
 
 const leftZone=
 document.getElementById("leftZone");
@@ -393,83 +601,99 @@ document.getElementById("moveBase");
 const moveKnob=
 document.getElementById("moveKnob");
 
-leftZone.addEventListener("touchstart",(e)=>{
+leftZone.addEventListener(
+"touchstart",
+e=>{
 
 if(leftTouch!==null)return;
 
-leftTouch=
-e.changedTouches[0].identifier;
+const t=
+e.changedTouches[0];
+
+leftTouch=t.identifier;
 
 moveBase.style.display="block";
 
 moveBase.style.left=
-(e.changedTouches[0].clientX-60)
-+"px";
+(t.clientX-65)+"px";
 
 moveBase.style.top=
-(e.changedTouches[0].clientY-60)
-+"px";
+(t.clientY-65)+"px";
 
-});
+}
+);
 
-leftZone.addEventListener("touchmove",(e)=>{
+leftZone.addEventListener(
+"touchmove",
+e=>{
 
 for(const t of e.changedTouches){
 
-if(t.identifier!==leftTouch)
-continue;
+if(
+t.identifier!==leftTouch
+) continue;
 
 const rect=
 moveBase.getBoundingClientRect();
 
 let x=
-t.clientX-(rect.left+60);
+t.clientX-
+(rect.left+65);
 
 let y=
-t.clientY-(rect.top+60);
+t.clientY-
+(rect.top+65);
 
 const d=
 Math.hypot(x,y);
 
-if(d>40){
+if(d>45){
 
-x=x/d*40;
-y=y/d*40;
+x=x/d*45;
+y=y/d*45;
 
 }
 
 moveKnob.style.left=
-(x+40)+"px";
+(x+45)+"px";
 
 moveKnob.style.top=
-(y+40)+"px";
+(y+45)+"px";
 
-moveX=x/40;
-moveY=y/40;
+moveX=x/45;
+moveY=y/45;
 
 }
 
-});
+}
+);
 
-leftZone.addEventListener("touchend",(e)=>{
+leftZone.addEventListener(
+"touchend",
+e=>{
 
 for(const t of e.changedTouches){
 
-if(t.identifier!==leftTouch)
-continue;
+if(
+t.identifier!==leftTouch
+) continue;
 
 leftTouch=null;
 
 moveX=0;
 moveY=0;
 
-moveBase.style.display="none";
+moveBase.style.display=
+"none";
 
 }
 
-});
+}
+);
 
-// ===== 右スティック =====
+// ====================
+// 右スティック
+// ====================
 
 const rightZone=
 document.getElementById("rightZone");
@@ -480,73 +704,88 @@ document.getElementById("aimBase");
 const aimKnob=
 document.getElementById("aimKnob");
 
-rightZone.addEventListener("touchstart",(e)=>{
+rightZone.addEventListener(
+"touchstart",
+e=>{
 
 if(rightTouch!==null)return;
 
-rightTouch=
-e.changedTouches[0].identifier;
+const t=
+e.changedTouches[0];
+
+rightTouch=t.identifier;
 
 aimBase.style.display="block";
 
 aimBase.style.left=
-(e.changedTouches[0].clientX-60)
-+"px";
+(t.clientX-65)+"px";
 
 aimBase.style.top=
-(e.changedTouches[0].clientY-60)
-+"px";
+(t.clientY-65)+"px";
 
-});
+}
+);
 
-rightZone.addEventListener("touchmove",(e)=>{
+rightZone.addEventListener(
+"touchmove",
+e=>{
 
 for(const t of e.changedTouches){
 
-if(t.identifier!==rightTouch)
-continue;
+if(
+t.identifier!==rightTouch
+) continue;
 
 const rect=
 aimBase.getBoundingClientRect();
 
 let x=
-t.clientX-(rect.left+60);
+t.clientX-
+(rect.left+65);
 
 let y=
-t.clientY-(rect.top+60);
+t.clientY-
+(rect.top+65);
 
 const d=
 Math.hypot(x,y);
 
-if(d>40){
+if(d>45){
 
-x=x/d*40;
-y=y/d*40;
+x=x/d*45;
+y=y/d*45;
 
 }
 
 aimKnob.style.left=
-(x+40)+"px";
+(x+45)+"px";
 
 aimKnob.style.top=
-(y+40)+"px";
+(y+45)+"px";
 
 aimX=x;
 aimY=y;
 
 }
 
-});
+}
+);
 
-rightZone.addEventListener("touchend",(e)=>{
+rightZone.addEventListener(
+"touchend",
+e=>{
 
 for(const t of e.changedTouches){
 
-if(t.identifier!==rightTouch)
-continue;
+if(
+t.identifier!==rightTouch
+) continue;
 
 if(
-Math.hypot(aimX,aimY)>5
+Math.hypot(
+aimX,
+aimY
+)>5
 ){
 
 shootBullet(
@@ -561,13 +800,23 @@ rightTouch=null;
 aimX=0;
 aimY=0;
 
-aimBase.style.display="none";
+aimBase.style.display=
+"none";
 
 }
 
-});
+}
+);
 
-// ===== ゲームループ =====
+// ====================
+// 毒ガス
+// ====================
+
+let gasRadius=1800;
+
+// ====================
+// ゲームループ
+// ====================
 
 function animate(){
 
@@ -578,46 +827,76 @@ animate
 // プレイヤー移動
 
 player.position.x+=
-moveX*5;
+moveX*3;
 
 player.position.z+=
-moveY*5;
+moveY*3;
 
-// カメラ追従
+// カメラ
 
-camera.position.x=
-player.position.x;
-
-camera.position.y=
-350;
-
-camera.position.z=
-player.position.z+250;
+camera.position.set(
+player.position.x,
+320,
+player.position.z+240
+);
 
 camera.lookAt(
 player.position.x,
 0,
 player.position.z
 );
+
+// 草むら
+
+let hidden=false;
+
+bushes.forEach(b=>{
+
 if(
-Math.hypot(aimX,aimY)>1
+Math.abs(
+player.position.x-b.position.x
+)<120 &&
+Math.abs(
+player.position.z-b.position.z
+)<120
+){
+
+hidden=true;
+
+}
+
+});
+
+player.material.opacity=
+hidden?0.45:1;
+
+// エイム線
+
+if(
+Math.hypot(
+aimX,
+aimY
+)>1
 ){
 
 const len=
-Math.hypot(aimX,aimY);
+Math.hypot(
+aimX,
+aimY
+);
 
 aimPoints[0].set(
 player.position.x,
-35,
+60,
 player.position.z
 );
 
 aimPoints[1].set(
 player.position.x+
-(aimX/len)*250,
-35,
+(aimX/len)*300,
+60,
 player.position.z+
-(aimY/len)*250
+(aimY/len)*300
 );
 
 aimGeometry.setFromPoints(
@@ -631,39 +910,12 @@ aimLine.visible=true;
 aimLine.visible=false;
 
 }
-// 草むら
-
-let hidden=false;
-
-bushes.forEach(b=>{
-
-const dx=
-player.position.x-
-b.position.x;
-
-const dz=
-player.position.z-
-b.position.z;
-
-if(
-Math.abs(dx)<150 &&
-Math.abs(dz)<120
-){
-
-hidden=true;
-
-}
-
-});
-
-player.material.opacity=
-hidden?0.4:1;
-
-player.material.transparent=true;
 
 // 敵AI
 
 enemies.forEach(enemy=>{
+
+if(enemy.hp<=0)return;
 
 const dx=
 player.position.x-
@@ -686,19 +938,17 @@ enemy.position.z+=
 
 }
 
-if(dist<220){
+if(dist<180){
 
 enemy.position.x-=
-(dx/dist)*1.5;
+(dx/dist)*1.4;
 
 enemy.position.z-=
-(dz/dist)*1.5;
+(dz/dist)*1.4;
 
 }
 
-if(
-Math.random()<0.003
-){
+if(Math.random()<0.003){
 
 shootBullet(
 dx,
@@ -715,8 +965,7 @@ enemy
 
 for(let i=bullets.length-1;i>=0;i--){
 
-const b=
-bullets[i];
+const b=bullets[i];
 
 b.position.x+=
 b.userData.vx;
@@ -724,36 +973,12 @@ b.userData.vx;
 b.position.z+=
 b.userData.vz;
 
-// 壁判定
-
-let hitWall=false;
-
-walls.forEach(w=>{
-
-const dx=
-Math.abs(
-b.position.x-
-w.position.x
-);
-
-const dz=
-Math.abs(
-b.position.z-
-w.position.z
-);
-
 if(
-dx<w.scale.x*50+20 &&
-dz<w.scale.z*50+20
+
+Math.abs(b.position.x)>2200 ||
+Math.abs(b.position.z)>2200
+
 ){
-
-hitWall=true;
-
-}
-
-});
-
-if(hitWall){
 
 scene.remove(b);
 bullets.splice(i,1);
@@ -761,54 +986,30 @@ continue;
 
 }
 
-// プレイヤー被弾
+}
 
-if(b.userData.enemy){
+gasRadius-=0.05;
 
-const dist=
-player.position.distanceTo(
-b.position
-);
+if(hp<=0){
 
-if(dist<35){
-
-hp-=20;
-
-hpUI.textContent=hp;
-
-scene.remove(b);
-bullets.splice(i,1);
+document
+.getElementById("defeat")
+.style.display="flex";
 
 }
 
-}else{
+if(alivePlayers<=1){
 
-// 敵被弾
-
-enemies.forEach(enemy=>{
-
-const dist=
-enemy.position.distanceTo(
-b.position
-);
-
-if(dist<35){
-
-enemy.position.x+=
-(Math.random()-0.5)*100;
-
-enemy.position.z+=
-(Math.random()-0.5)*100;
-
-scene.remove(b);
+document
+.getElementById("victory")
+.style.display="flex";
 
 }
 
-});
-
-}
-
-}
+document
+.getElementById("hp")
+.innerHTML=
+Math.floor(hp);
 
 renderer.render(
 scene,
@@ -819,7 +1020,9 @@ camera
 
 animate();
 
+// ====================
 // リサイズ
+// ====================
 
 window.addEventListener(
 "resize",
@@ -836,4 +1039,5 @@ window.innerWidth,
 window.innerHeight
 );
 
-});
+}
+);
