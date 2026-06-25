@@ -309,36 +309,21 @@ new THREE.TextureLoader();
 
 const textures={
 
-front:loader.load(
-"images/player/player_front.png"
-),
+front:loader.load("IMG_0280.jpeg"),
 
-back:loader.load(
-"images/player/player_back.png"
-),
+back:loader.load("IMG_0281.jpeg"),
 
-left:loader.load(
-"images/player/player_left.png"
-),
+left:loader.load("IMG_0280.jpeg"),
 
-right:loader.load(
-"images/player/player_right.png"
-),
+right:loader.load("IMG_0280.jpeg"),
 
-attack1:loader.load(
-"images/player/player_attack1.png"
-),
+attack1:loader.load("IMG_0280.jpeg"),
 
-attack2:loader.load(
-"images/player/player_attack2.png"
-),
+attack2:loader.load("IMG_0280.jpeg"),
 
-attack3:loader.load(
-"images/player/player_attack3.png"
-)
+attack3:loader.load("IMG_0280.jpeg")
 
 };
-
 const playerMaterial=
 new THREE.SpriteMaterial({
 
